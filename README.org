@@ -1,4 +1,265 @@
-#+TITLE: Emacs Configuration
-#+AUTHOR: Alexander Neville
+#+title: Emacs Configuration
 
-Emacs, more specifically GNU/Emacs, is a peice of free software providing a text-oriented user interface and Emacs Lisp interpreter. Emacs includes many functions which make it a capable text editor. I use it primarily for the special major modes it provides, namely Org, Magit and Dired.
+I prefer to use [[https://github.com/alexanderneville/nvim_config][Neovim]] for most programming tasks, however Emacs has some features which are undoubtedly very useful. /Org/ mode is a great tool for writing things and has export backends for *HTML* and /Latex/, with the added benefit of some /WYSIWYM/ abstractions you might not have using markdown/pandoc or another solution. Another strength of org mode is its handling of source blocks, which lets you do things like write a whole program in a =README=...
+
+* Options
+
+The following functions apply to all frames.
+
+#+begin_src emacs-lisp
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+(fringe-mode '(0 . 0))
+(global-auto-revert-mode 1)
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+#+end_src
+
+This snippet makes tab insert 4 spaces if allowed.
+
+#+begin_src emacs-lisp
+(setq-default indent-tabs-mode t)
+(setq tab-width 4)
+(setq-default c-basic-offset 4)
+#+end_src
+
+Set the value of some variables.
+
+#+begin_src emacs-lisp
+(setq inhibit-startup-echo-area-message "alex" ;; use your username
+      inhibit-startup-message t
+      initial-scratch-message "; Hello!"
+      use-dialog-box nil
+      scroll-conservatively 1000
+      backup-inhibited t
+      auto-save-default nil
+      global-auto-revert-non-file-buffers t
+      x-select-enable-clipboard nil)
+#+end_src
+
+Prevent custom set variables intefering with handwritten initialisation.
+
+#+begin_src emacs-lisp
+(setq custom-file (locate-user-emacs-file "custom_vars.el"))
+(load custom-file 'noerror 'nomessage)
+#+end_src
+
+Font configuration.
+
+#+begin_src emacs-lisp
+(set-face-attribute 'default nil :family "Iosevka Nerd Font" :height 90)
+#+end_src
+
+* Package Initialisation
+
+Use =use-package= for installing emacs packages easily.
+
+#+begin_src emacs-lisp
+(require 'package)
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("org" . "https://orgmode.org/elpa/")
+                         ("elpa" . "https://elpa.gnu.org/packages/")))
+(package-initialize)
+(unless package-archive-contents
+ (package-refresh-contents))
+(unless (package-installed-p 'use-package)
+   (package-install 'use-package))
+(require 'use-package)
+(setq use-package-always-ensure t)
+#+end_src
+
+* Themes
+
+The default doom emacs appearance is quite nice.
+
+#+begin_src emacs-lisp
+(use-package doom-themes
+  :ensure t
+  :config
+  (setq doom-themes-enable-bold t
+        doom-themes-enable-italic t)
+  (doom-themes-org-config)
+  (load-theme 'doom-one t))
+
+(use-package all-the-icons
+  :ensure t)
+
+(use-package doom-modeline
+  :ensure t
+  :hook (after-init . doom-modeline-mode)
+  :config
+  (setq doom-modeline-height 50))
+#+end_src
+
+* Completion
+
+Fuzzy finding and completion. 
+
+#+begin_src emacs-lisp
+(use-package ivy
+  :diminish
+  :bind (("C-s" . swiper)
+         :map ivy-minibuffer-map
+         ("TAB" . ivy-alt-done)
+         ("C-l" . ivy-alt-done)
+         ("C-j" . ivy-next-line)
+         ("C-k" . ivy-previous-line)
+         :map ivy-switch-buffer-map
+         ("C-k" . ivy-previous-line)
+         ("C-l" . ivy-done)
+         ("C-d" . ivy-switch-buffer-kill)
+         :map ivy-reverse-i-search-map
+         ("C-k" . ivy-previous-line)
+         ("C-d" . ivy-reverse-i-search-kill))
+  :config
+  (setq ivy-initial-inputs-alist nil)
+  (ivy-mode 1))
+
+(use-package ivy-rich
+  :init
+  (ivy-rich-mode 1))
+
+(use-package counsel
+  :bind (("M-x" . counsel-M-x)
+         ("C-x b" . counsel-ibuffer)
+         ("C-x C-f" . counsel-find-file)
+         :map minibuffer-local-map
+         ("C-r" . 'counsel-minibuffer-history)))
+#+end_src
+
+* Keybinds
+
+I prefer Vi/Vim keys.
+
+#+begin_src emacs-lisp
+(use-package evil
+  :init
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
+  (setq evil-want-C-u-scroll t)
+  (setq evil-want-C-i-jump nil)
+  :config
+  (evil-mode 1)
+  (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+  (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+  (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+  (evil-set-initial-state 'messages-buffer-mode 'normal)
+  (evil-set-initial-state 'dashboard-mode 'normal))
+
+(with-eval-after-load 'evil-maps
+  (define-key evil-motion-state-map (kbd "RET") nil))
+
+(use-package evil-collection
+  :after evil
+  :config
+  (evil-collection-init))
+#+end_src
+
+Leader key configuration.
+
+#+begin_src emacs-lisp
+(use-package general
+  :config
+  (general-evil-setup t)
+  (general-create-definer myconfig/leader-keys
+      :prefix "SPC"
+      :global-prefix "C-c"))
+
+(myconfig/leader-keys 'normal 'override
+  ;; switch/navigate
+  "bb" 'counsel-switch-buffer
+  "ff" 'counsel-find-file
+  "ss" 'swiper
+  ;; functions
+  "d" 'dired
+  "p" 'clipboard-yank
+  "y" 'clipboard-kill-ring-save
+  "e" 'eval-buffer
+  "x" 'counsel-M-x
+  "i" 'ibuffer
+  "c" 'evil-delete-buffer
+  "t" 'counsel-load-theme
+  ;; org
+  "or" 'org-mode-restart
+  "op" 'org-latex-preview
+  "otl" 'org-toggle-link-display
+  "oti" 'org-toggle-inline-images
+)
+
+(use-package which-key
+  :init (which-key-mode)
+  :diminish which-key-mode
+  :config
+  (setq which-key-idle-delay 0.01))
+#+end_src
+
+* Programming
+
+Treesitter, LSP & snippets.
+
+#+begin_src emacs-lisp
+(use-package tree-sitter
+  :config
+  (global-tree-sitter-mode)
+  (add-hook 'prog-mode-hook #'tree-sitter-hl-mode))
+(use-package tree-sitter-langs)
+
+(use-package lsp-mode
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+  :config
+  (add-hook 'prog-mode-hook #'lsp)
+  :commands lsp)
+
+(use-package lsp-pyright
+  :ensure t
+  :hook (python-mode . (lambda ()
+                          (require 'lsp-pyright)
+                          (lsp))))  ; or lsp-deferred
+(use-package company
+  :config
+  (add-hook 'prog-mode-hook #'company-mode))
+
+(use-package smartparens
+  :config
+  (add-hook 'prog-mode-hook #'smartparens-mode))
+
+(use-package yasnippet
+  :config
+  (add-hook 'prog-mode-hook #'yas-minor-mode))
+(use-package yasnippet-snippets)
+#+end_src
+
+* Org Mode
+
+Unique feature of Emacs.
+
+#+begin_src emacs-lisp
+(defun org-mode-setup ()
+  (org-indent-mode 1)
+  (visual-line-mode nil)
+  (setq org-hide-emphasis-markers nil
+	org-return-follows-link  t
+	org-list-allow-alphabetical t
+	org-catch-invisible-edits 'smart
+	org-use-sub-superscripts '{}
+	org-export-with-sub-superscripts '{}
+	org-src-preserve-indentation nil
+	org-edit-src-content-indentation 0
+	))
+
+(require 'org)
+(require 'org-tempo)
+(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+(add-to-list 'org-structure-template-alist '("py" . "src python"))
+(add-hook 'org-mode-hook #'org-mode-setup)
+
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((emacs-lisp . t)
+   (python . t)))
+
+(setq org-confirm-babel-evaluate nil)
+#+end_src
