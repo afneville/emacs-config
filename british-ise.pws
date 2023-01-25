@@ -1,21 +1,27 @@
-personal_ws-1.1 en 28 
+personal_ws-1.1 en 36 
 ADT
 Cgroups
 DevOps
+Github
 Invariants
 LXC
+Neovim
 OCI
 Podman
 Polymorphism
 Redhat
+UI
 VM
 VMs
 Variadic
+WYSIWYM
 accessor
 chroot
 cp
 dereferenced
 eg
+emacs
+init
 makefile
 mkdir
 modularity
@@ -27,3 +33,5 @@ pseudocode
 runtimes
 src
 struct
+tmux
+zsh
