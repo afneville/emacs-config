@@ -260,11 +260,22 @@ This is a very quick programming setup, I won't use Emacs for programming very o
 
 (use-package smartparens
   :config
-  (add-hook 'prog-mode-hook #'smartparens-mode))
+  ; (add-hook 'prog-mode-hook #'smartparens-mode))
+  (smartparens-global-mode 1))
 
+#+end_src
+
+** Snippets
+
+In the past I haven't used snippets too heavily, but I am gradually getting used to the idea. As it is so easy to set up in Emacs, I will have snippets.
+
+#+begin_src emacs-lisp
 (use-package yasnippet
   :config
-  (add-hook 'prog-mode-hook #'yas-minor-mode))
+  ; (setq yas-snippet-dirs '("~/.config/emacs/snippets"))
+  ; (add-hook 'prog-mode-hook #'yas-minor-mode)
+  ; (add-hook 'prog-mode-hook #'yas-minor-mode))
+  (yas-global-mode 1))
 (use-package yasnippet-snippets)
 #+end_src
 
@@ -274,9 +285,9 @@ Define a function to evaluate when org mode is loaded, this is easier than many 
 
 #+begin_src emacs-lisp
 (defun org-mode-setup ()
-  (org-indent-mode 1)
-  (visual-line-mode nil)
+  ;; (org-indent-mode 1)
   ;; (variable-pitch-mode 1)
+  (visual-line-mode nil)
   (setq org-hide-emphasis-markers t
         org-return-follows-link  t
         org-list-allow-alphabetical t
@@ -285,10 +296,16 @@ Define a function to evaluate when org mode is loaded, this is easier than many 
         org-export-with-sub-superscripts '{}
         org-src-preserve-indentation nil
         org-edit-src-content-indentation 0
-        tex-fontify-script nil
+        ; mode-line-format nil
+        ; tex-fontify-script nil
+        org-format-latex-options (plist-put org-format-latex-options :scale 3.0)
         org-highlight-latex-and-related '(latex entities)
         org-src-fontify-natively t
-        mode-line-format nil
+	org-image-actual-width (list 600)
+        org-ellipsis " …"
+        ; org-ellipsis " 󱨉"
+        ; org-ellipsis "⋱"
+        ; org-ellipsis "↴"
         org-link-frame-setup
             '((vm . vm-visit-folder-other-frame)
               (vm-imap . vm-visit-imap-folder-other-frame)
@@ -301,9 +318,13 @@ Define a function to evaluate when org mode is loaded, this is easier than many 
 Call the set-up function when org mode is loaded.
 
 #+begin_src emacs-lisp
-(require 'org-indent)
-(require 'org-src)
-(setq	org-startup-folded 'content)
+;; (require 'org-indent)
+;; (require 'org-src)
+(setq
+  org-startup-with-latex-preview t
+  org-startup-folded 'content
+  org-startup-with-inline-images nil ; slow
+)
 (add-hook 'org-mode-hook #'org-mode-setup)
 #+end_src
 
@@ -362,11 +383,24 @@ Change the height of the face used to display /org-mode/ headings.
                 (org-level-5 . 1.1)
                 (org-level-6 . 1.1)
                 (org-level-7 . 1.1)
-                (org-level-8 . 1.1)
-                (org-document-title . 1.6)))
+                (org-level-8 . 1.1)))
   (set-face-attribute (car face) nil :family
 		      (face-attribute 'variable-pitch :family)
 		      :weight 'bold :height (cdr face)))
+#+end_src
+
+Make the document title larger.
+
+#+begin_src emacs-lisp
+(set-face-attribute 'org-document-title nil :height 1.6)
+#+end_src
+
+Replace bullet points (lines with leading dashes) with Unicode characters.
+
+#+begin_src emacs-lisp
+(font-lock-add-keywords 'org-mode
+                        '(("^ *\\([-]\\) "
+                          (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 #+end_src
 
 ** Extra Packages
@@ -429,4 +463,17 @@ An essential feature for writing text. /Ispell/ ignores words in my private dict
 (dolist (hook '(org-mode-hook))
   (add-hook hook (lambda () (flyspell-mode 1))))
 (add-hook 'flyspell-mode-hook 'flyspell-buffer)
+#+end_src
+
+** Latex
+
+Latex is a uniquely powerful typesetting system, but I would rather not worry about latex code when trying to write documents. The slightly more simple org syntax with the ability to embed latex fragments where required is a much better system.
+
+#+begin_src emacs-lisp
+(use-package cdlatex
+  :config
+    (add-hook 'org-mode-hook #'turn-on-org-cdlatex))
+(use-package org-fragtog
+  :config
+(add-hook 'org-mode-hook 'org-fragtog-mode))
 #+end_src
