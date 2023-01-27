@@ -59,7 +59,8 @@ And then set the values of some variables.
       backup-inhibited t
       auto-save-default nil
       global-auto-revert-non-file-buffers t
-      x-select-enable-clipboard nil)
+      x-select-enable-clipboard nil
+      user-full-name "Alexander Neville")
 #+end_src
 
 The default font is given an absolute height of =100=. The height of other fonts is specified relative to the height of the default font. In this case =:height 1.0= can be omitted.
@@ -72,7 +73,7 @@ The default font is given an absolute height of =100=. The height of other fonts
 
 * Packages
 
-There are thousands of packages available to extend emacs. =M-x list-packages<CR>= will give you list to browse.
+There are thousands of packages available to extend emacs. =M-x list-packages<CR>= will give you a list to browse.
 
 ** Themes
 
@@ -321,7 +322,7 @@ Call the set-up function when org mode is loaded.
 ;; (require 'org-indent)
 ;; (require 'org-src)
 (setq
-  org-startup-with-latex-preview t
+  org-startup-with-latex-preview nil
   org-startup-folded 'content
   org-startup-with-inline-images nil ; slow
 )
@@ -392,7 +393,7 @@ Change the height of the face used to display /org-mode/ headings.
 Make the document title larger.
 
 #+begin_src emacs-lisp
-(set-face-attribute 'org-document-title nil :height 1.6)
+(set-face-attribute 'org-document-title nil :family (face-attribute 'default :family) :weight 'bold :height 1.6)
 #+end_src
 
 Replace bullet points (lines with leading dashes) with Unicode characters.
@@ -441,6 +442,17 @@ For writing text, =visual-line-mode= is enabled. The /visual-fill-column/ packag
 (advice-add 'text-scale-adjust :after #'visual-fill-column-adjust)
 #+end_src
 
+A couple of packages to help with editing latex in org mode. Some snippets have also been loaded.
+
+#+begin_src emacs-lisp
+(use-package cdlatex
+  :config
+    (add-hook 'org-mode-hook #'turn-on-org-cdlatex))
+(use-package org-fragtog
+  :config
+(add-hook 'org-mode-hook 'org-fragtog-mode))
+#+end_src
+
 ** Spell Checking
 
 An essential feature for writing text. /Ispell/ ignores words in my private dictionary and code inside source blocks. /Flycheck/ highlights possible errors in the buffer.
@@ -465,15 +477,139 @@ An essential feature for writing text. /Ispell/ ignores words in my private dict
 (add-hook 'flyspell-mode-hook 'flyspell-buffer)
 #+end_src
 
-** Latex
+** Export
 
-Latex is a uniquely powerful typesetting system, but I would rather not worry about latex code when trying to write documents. The slightly more simple org syntax with the ability to embed latex fragments where required is a much better system.
+Latex is a uniquely powerful typesetting system, but I would rather not worry about latex things when trying to write documents. The slightly more simple org syntax with the ability to embed latex fragments where required is a much better system. Org must be configured to export documents to latex properly. As a bonus, org can export to other file formats, such as html. Step one, require the export back-ends.
 
 #+begin_src emacs-lisp
-(use-package cdlatex
-  :config
-    (add-hook 'org-mode-hook #'turn-on-org-cdlatex))
-(use-package org-fragtog
-  :config
-(add-hook 'org-mode-hook 'org-fragtog-mode))
+(require 'ox-latex)
+#+end_src
+
+In org it is convenient to have many levels of headline nesting, but in HTML and latex the practical number of available heading levels is limited. In HTML, the tags =h1, ..., h6= are available, with =h1= being used for the document title, leaving a maximum of 5 levels. In the default latex /article/ class, =subsubsection= is the lowest heading level above paragraph, which is 3 levels. If more headings are required the should be changed to book or report.
+
+#+begin_src text :tangle no
+5. part           <- report/book
+4. chapter
+3. section        <- article
+2. subsection
+1. subsubsection
+#+end_src
+
+Set the maximum headline export level to 3, for the reasons given above. This can be changed on a file-by-file basis.
+
+#+begin_src emacs-lisp
+(setq org-export-headline-levels 3)
+#+end_src
+
+There are quite a few of variables to consider to get latex export working correctly:
+
+- =org-latex-default-packages-alist=: minimal preamble, best to leave unchanged.
+- =org-latex-packages-alist=: empty by default, add preamble common to all org documents.
+- =org-latex-classes=: a list of ways to convert an org-structured document to latex.
+
+The list =org-latex-classes= is very important. You can add a new class with a /class-name/, /header-string/ and /sectioning-structure/ (see the variable's help for more detailed information). In the header string you can write a preamble, optionally including the contents of =org-*-packages-alist=. So as to avoid repeating latex fragments, break a custom preamble into sections and bind to variables.
+
+#+begin_src emacs-lisp
+(setq
+chapter-redef
+"\\patchcmd{\\chapter}{\\thispagestyle{plain}}{\\thispagestyle{fancy}}{}{}
+\\makeatletter
+\\def\\@makechapterhead#1{%
+  \\vspace*{50\\p@}%
+  {\\parindent \\z@ \\raggedright \\normalfont
+    \\ifnum \\c@secnumdepth >\\m@ne
+        %\\huge\\bfseries \\@chapapp\\space \\thechapter
+        \\Huge\\bfseries \\thechapter.\\space%
+        %\\par\\nobreak
+        %\\vskip 20\\p@
+    \\fi
+    \\interlinepenalty\\@M
+    \\Huge \\bfseries #1\\par\\nobreak
+    \\vskip 40\\p@
+  }}
+\\makeatother\n"
+fancyheader-def
+"\\usepackage{fancyhdr}
+\\pagestyle{fancy}
+\\renewcommand{\\sectionmark}[1]{\\markright{\\thesection~- ~#1}}
+\\renewcommand{\\chaptermark}[1]{\\markboth{\\chaptername~\\thechapter. \\textit{#1}}{}}
+\\fancyhf{}
+\\rfoot{page \\textbf{\\thepage}}
+\\lfoot{\\nouppercase{\\leftmark}}
+\\renewcommand{\\headrulewidth}{0pt}
+\\renewcommand{\\footrulewidth}{0.4pt}\n"
+common-head
+"\\usepackage{svg}
+\\svgsetup{inkscapelatex=false}
+\\usepackage{blindtext}
+\\usepackage{tcolorbox}
+\\usepackage{etoolbox}
+\\hypersetup{hidelinks}
+\\usemintedstyle{bw}
+\\setminted{autogobble=true, breaklines=true, breakbytokenanywhere=true, fontsize=\\small, xleftmargin=1cm, xrightmargin=1cm}
+\\usepackage[indent=0.5cm]{parskip}
+\\usepackage[a4paper, includefoot, margin=2.54cm]{geometry}\n"
+default-head-setup
+"\\usepackage[utf8]{inputenc}
+\\usepackage[T1]{fontenc}
+\\usepackage{graphicx}
+\\usepackage{longtable}
+\\usepackage{wrapfig}
+\\usepackage{rotating}
+\\usepackage[normalem]{ulem}
+\\usepackage{amsmath}
+\\usepackage{amssymb}
+\\usepackage{capt-of}
+\\usepackage{hyperref}
+\\usepackage{minted}\n"
+)
+#+end_src
+
+Create each class as a list containing cons cells which represent the headline levels of the latex document. Build the /header-string/ by concatenating latex snippets together and add to the list. Finally add each user-defined class to =org-latex-classes=.
+
+#+begin_src emacs-lisp
+(setq long-report   '(("\\part{%s}" . "\\part*{%s}")
+		      ("\\chapter{%s}" . "\\chapter*{%s}")
+		      ("\\section{%s}" . "\\section*{%s}")
+		      ("\\subsection{%s}" . "\\subsection*{%s}")
+		      ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
+      short-report  '(("\\chapter{%s}" . "\\chapter*{%s}")
+		      ("\\section{%s}" . "\\section*{%s}")
+		      ("\\subsection{%s}" . "\\subsection*{%s}")
+		      ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
+      custom-article '(("\\section{%s}" . "\\section*{%s}")
+		      ("\\subsection{%s}" . "\\subsection*{%s}")
+		      ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+
+(setq report-common-header-string (concat "\\documentclass{report}\n[NO-DEFAULT-PACKAGES]\n[NO-PACKAGES]\n" default-head-setup chapter-redef common-head fancyheader-def "[EXTRA]"))
+(add-to-list 'short-report report-common-header-string)
+(add-to-list 'long-report report-common-header-string)
+(add-to-list 'custom-article (concat "\\documentclass{article}\n[NO-DEFAULT-PACKAGES]\n[NO-PACKAGES]\n" default-head-setup common-head fancyheader-def "[EXTRA]"))
+(add-to-list 'short-report "short-report")
+(add-to-list 'long-report "long-report")
+(add-to-list 'custom-article "custom-article")
+
+(with-eval-after-load 'ox-latex
+    (add-to-list 'org-latex-classes long-report)
+    (add-to-list 'org-latex-classes short-report)
+    (add-to-list 'org-latex-classes custom-article))
+#+end_src
+
+The following export options are available in each org document. Prepend a =#+= to use.
+
+- =latex_class=: looked up in =org-latex-classes= to find the header to use.
+- =latex_class_options=: document class options, could be rolled into the class header.
+- =latex_header= & =latex_header_extra=: lines to be added to the header string for this file.
+
+Set some defaults in the config file.
+
+#+begin_src emacs-lisp
+(setq org-export-with-title nil
+      org-export-with-toc nil)
+#+end_src
+
+Use minted for exporting code blocks.
+
+#+begin_src emacs-lisp
+(setq org-latex-listings 'minted)
 #+end_src
