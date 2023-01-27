@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: export-image
+# key: eimg
+# --
+#+ATTR_ORG:
+#+ATTR_HTML:
+#+ATTR_LATEX: :placement [H] :scale 1
+#+NAME: fig:${1:label}
+#+CAPTION: ${2:caption}
+$0

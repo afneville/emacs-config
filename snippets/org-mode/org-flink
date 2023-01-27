@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: org-flink
+# key: flink
+# --
+[[${1:link}]]$0

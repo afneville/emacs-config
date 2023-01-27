@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: export-block
+# key: eblock
+# --
+#+ATTR_ORG:
+#+ATTR_HTML:
+#+ATTR_LATEX: :float t :placement [H]
+#+NAME: fig:${1:label}
+#+CAPTION: ${2:caption}
+$0
