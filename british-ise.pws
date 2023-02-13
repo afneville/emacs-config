@@ -1,22 +1,32 @@
-personal_ws-1.1 en 36 
+personal_ws-1.1 en 47 
 ADT
 Cgroups
 DevOps
 Github
 Invariants
+JDK
+JDKs
+JRE
+JS
+JVM
 LXC
 Neovim
 OCI
 Podman
 Polymorphism
+QoL
 Redhat
+TODOs
 UI
 VM
 VMs
 Variadic
 WYSIWYM
 accessor
+bytecode
 chroot
+combinator
+combinators
 cp
 dereferenced
 eg
@@ -33,5 +43,6 @@ pseudocode
 runtimes
 src
 struct
+stylesheet
 tmux
 zsh

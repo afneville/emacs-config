@@ -16,3 +16,5 @@
  (expand-file-name "README.org"
                    user-emacs-directory))
 (put 'dired-find-alternate-file 'disabled nil)
+(find-file "~/vcon/private/agenda.org")
+(message ":)")
