@@ -82,13 +82,12 @@ There are thousands of packages available to extend emacs. =M-x list-packages<CR
 
 The /modus themes/ are very feature rich and roll a lot of initialisation into one package. The [[https://protesilaos.com/emacs/modus-themes][official documentation]] is the best place to find out about the configuration options available.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package modus-themes
   :config
   (setq modus-themes-mode-line '(accented)
         modus-themes-region '(accented bg-only)
         modus-themes-completions '(opinionated)
-	  ; modus-themes-mixed-fonts t
         modus-themes-bold-constructs t
         modus-themes-italic-constructs t
         modus-themes-paren-match '(bold underline)
@@ -96,29 +95,43 @@ The /modus themes/ are very feature rich and roll a lot of initialisation into o
         modus-themes-subtle-line-numbers t
         modus-themes-org-blocks 'gray-background
         modus-themes-scale-headings t
-        modus-themes-headings
-              '((1 . (1.5))
-                (2 . (1.3))
-                (t . (1.1)))
+        modus-themes-common-palette-overrides modus-themes-preset-overrides-faint
         modus-themes-common-palette-overrides
-              '((fg-heading-1 blue)
-                (fg-heading-2 cyan)
-                (fg-heading-3 green)
-		(bg-mode-line-active bg-blue-intense)
-		; (bg-heading-1 bg-inactive)
-		; (bg-heading-2 bg-inactive)
-		; (bg-heading-3 bg-inactive)
-		; (overline-heading-1 blue)
-		; (overline-heading-2 cyan)
-		; (overline-heading-3 green)
-		)
-  )
-  (load-theme 'modus-operandi t))
+        '((fg-heading-1 blue)
+          (fg-heading-2 cyan)
+          (fg-heading-3 green)
+          )
+        modus-vivendi-palette-overrides
+        '((bg-main "#1e1e1e")
+          (bg-dim "#262626")
+          (fg-main "#d4d4d4")
+          )
+        )
+  (setq modus-themes-common-palette-overrides
+        '((border-mode-line-active bg-mode-line-active)
+          (border-mode-line-inactive bg-mode-line-inactive)))
+  (load-theme 'modus-vivendi t))
+
+(defun my-modus-themes-custom-faces ()
+  (modus-themes-with-colors
+    (custom-set-faces
+     ;; Add "padding" to the mode lines
+     `(mode-line ((,c :underline ,border-mode-line-active
+                      :overline ,border-mode-line-active
+                      :box (:line-width 10 :color ,bg-mode-line-active))))
+     `(mode-line-inactive ((,c :underline ,border-mode-line-inactive
+                               :overline ,border-mode-line-inactive
+                               :box (:line-width 10 :color ,bg-mode-line-inactive)))))))
+
+;; ESSENTIAL to make the underline move to the bottom of the box:
+(setq x-underline-at-descent-line t)
+
+(add-hook 'modus-themes-after-load-theme-hook #'my-modus-themes-custom-faces)
 #+end_src
 
 The set of /doom emacs/ themes is also quite nice. I only ever load one of /modus/ or /doom/.
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (use-package doom-themes
   :ensure t
   :config
@@ -130,14 +143,31 @@ The set of /doom emacs/ themes is also quite nice. I only ever load one of /modu
 (use-package all-the-icons
   :ensure t)
 
-#+end_src
-
-#+begin_src emacs-lisp
 (use-package doom-modeline
   :ensure t
   :hook (after-init . doom-modeline-mode)
   :config
   (setq doom-modeline-height 50))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+(use-package base16-theme
+  :ensure t
+  :demand
+  :init
+  (setq base16-theme-distinct-fringe-background nil)
+  (setq base16-theme-highlight-mode-line 'contrast)
+  (setq base16-theme-256-color-source 'colors)
+  :config
+  (load-theme 'base16-gruvbox-material-dark-hard t)
+  ; Set the cursor color based on the evil state
+  (defvar myconfig/base16-colors base16-gruvbox-material-dark-hard-theme-colors)
+  (setq evil-emacs-state-cursor   `(,(plist-get myconfig/base16-colors :base0D) box)
+        evil-insert-state-cursor  `(,(plist-get myconfig/base16-colors :base0D) bar)
+        evil-motion-state-cursor  `(,(plist-get myconfig/base16-colors :base0E) box)
+        evil-normal-state-cursor  `(,(plist-get myconfig/base16-colors :base0B) box)
+        evil-replace-state-cursor `(,(plist-get myconfig/base16-colors :base08) bar)
+        evil-visual-state-cursor  `(,(plist-get myconfig/base16-colors :base09) box)))
 #+end_src
 
 ** Completion
@@ -280,38 +310,60 @@ Define some interactive functions for those bindings.
   (setq-local org-blocks-hidden (not org-blocks-hidden)))
 #+end_src
 
-** Programming
+* Programming
 
-This is a very quick programming setup, I won't use Emacs for programming very often.
+This is a very quick programming setup, I won't use Emacs for programming very often. Enable line highlighting and line numbers.
 
 #+begin_src emacs-lisp
+(setq display-line-numbers-type 'relative)
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+(add-hook 'prog-mode-hook #'hl-line-mode)
+#+end_src
+
+Optional tree-sitter support.
+
+#+begin_src emacs-lisp :tangle no
 (use-package tree-sitter
   :config
   (global-tree-sitter-mode))
-  ; (add-hook 'prog-mode-hook #'tree-sitter-hl-mode))
 (use-package tree-sitter-langs)
+#+end_src
 
+Company is a completion front-end.
+
+#+begin_src emacs-lisp
+(use-package company
+  :config
+  (setq company-minimum-prefix-length 1
+	  company-idle-delay 0
+        company-tooltip-limit 6
+        company-backends '((company-capf company-dabbrev-code company-files company-yasnippet)))
+  )
+(defun company-text-mode-hook ()
+  (setq-local company-backends
+              '((company-capf company-yasnippet company-dabbrev company-ispell :separate)
+                )))
+(setq ispell-alternate-dictionary "/home/alex/.config/emacs/completion-words.txt")
+(add-hook 'text-mode-hook #'company-text-mode-hook)
+(add-hook 'text-mode-hook #'company-mode)
+(add-hook 'prog-mode-hook #'company-mode)
+
+(use-package company-box
+  :hook (company-mode . company-box-mode))
+#+end_src
+
+#+begin_src emacs-lisp
 (use-package lsp-mode
   :init
   (setq lsp-keymap-prefix "C-c l")
-  ; :config
-  ; (add-hook 'prog-mode-hook #'lsp) # do this on per file basis
   :commands lsp)
 
-(use-package lsp-pyright
-  :ensure t
-  :hook (python-mode . (lambda ()
-                          (require 'lsp-pyright)
-                          (lsp))))
-(use-package company
-  :config
-  (add-hook 'prog-mode-hook #'company-mode))
 
 (use-package smartparens
   :config
+  (require 'smartparens-config)
   ; (add-hook 'prog-mode-hook #'smartparens-mode))
   (smartparens-global-mode 1))
-
 #+end_src
 
 ** Snippets
@@ -422,27 +474,29 @@ The /mixed-pitch/ package does many of the same things.
 
 Change the height of the face used to display /org-mode/ headings and the document title.
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (defun org-heading-face-setup ()
-(dolist (face '((org-level-1 . 1.5)
-                (org-level-2 . 1.4)
-                (org-level-3 . 1.3)
-                (org-level-4 . 1.2)
-                (org-level-5 . 1.1)
-                (org-level-6 . 1.1)
-                (org-level-7 . 1.1)
-                (org-level-8 . 1.1)))
-  (set-face-attribute (car face) nil :family
-		      (face-attribute 'default :family)
-		      :weight 'bold :height (cdr face)))
-)
+  (dolist (face '((org-level-1 . 1.5)
+                  (org-level-2 . 1.4)
+                  (org-level-3 . 1.3)
+                  (org-level-4 . 1.2)
+                  (org-level-5 . 1.1)
+                  (org-level-6 . 1.1)
+                  (org-level-7 . 1.1)
+                  (org-level-8 . 1.1)))
+    (set-face-attribute (car face) nil :family
+                        (face-attribute 'default :family)
+                        :weight 'bold :height (cdr face)))
+  )
 
-(defun org-title-face-setup ()
-  (set-face-attribute 'org-document-title nil :family (face-attribute 'default :family) :weight 'bold :height 1.6)
-)
+(add-hook 'org-mode-hook 'org-heading-face-setup)
 #+end_src
 
 #+begin_src emacs-lisp
+(defun org-title-face-setup ()
+  (set-face-attribute 'org-document-title nil :family (face-attribute 'default :family) :weight 'bold :height 1.6)
+)
+
 (add-hook 'org-mode-hook 'org-title-face-setup)
 #+end_src
 
@@ -514,6 +568,7 @@ A couple of packages to help with editing latex in org mode. Some snippets have 
 #+begin_src emacs-lisp
 (use-package cdlatex
   :config
+    (setq cdlatex-simplify-sub-super-scripts nil)
     (add-hook 'org-mode-hook #'turn-on-org-cdlatex))
 (use-package org-fragtog
   :config

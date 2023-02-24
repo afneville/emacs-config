@@ -2,9 +2,8 @@
 # name: org-header
 # key: head
 # --
-#+title: ${1:title}
-#+author: ${2:author}
-#+latex_class:
-#+latex_header:
-#+options:
+#+TITLE: ${1:title}
+#+AUTHOR: Alexander Neville
+#+DATE: 
+#+OPTIONS: 
 $0

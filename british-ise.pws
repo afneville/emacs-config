@@ -1,4 +1,4 @@
-personal_ws-1.1 en 47 
+personal_ws-1.1 en 50 
 ADT
 Cgroups
 DevOps
@@ -37,6 +37,7 @@ mkdir
 modularity
 namespace
 namespaces
+percept
 podman
 prepending
 pseudocode
@@ -45,4 +46,6 @@ src
 struct
 stylesheet
 tmux
+unobservable
+untracked
 zsh
