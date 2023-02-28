@@ -14,23 +14,23 @@ So that this file is rendered automatically by Github, it is called =README.org=
 The second of these options is preferable, you can bootstrap a new installation without an existing Emacs environment. A minimal =init.el= capable of loading a literate configuration might look like:
 
 #+begin_src emacs-lisp :tangle no
-(setq custom-file (locate-user-emacs-file "custom_vars.el"))
-(load custom-file 'noerror 'nomessage)
-(require 'package)
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("org" . "https://orgmode.org/elpa/")
-                         ("elpa" . "https://elpa.gnu.org/packages/")))
-(package-initialize)
-(unless package-archive-contents
- (package-refresh-contents))
-(unless (package-installed-p 'use-package)
-   (package-install 'use-package))
-(require 'use-package)
-(setq use-package-always-ensure t)
-(require 'org)
-(org-babel-load-file
-  (expand-file-name "README.org"
-                   user-emacs-directory))
+  (setq custom-file (locate-user-emacs-file "custom_vars.el"))
+  (load custom-file 'noerror 'nomessage)
+  (require 'package)
+  (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                           ("org" . "https://orgmode.org/elpa/")
+                           ("elpa" . "https://elpa.gnu.org/packages/")))
+  (package-initialize)
+  (unless package-archive-contents
+    (package-refresh-contents))
+  (unless (package-installed-p 'use-package)
+    (package-install 'use-package))
+  (require 'use-package)
+  (setq use-package-always-ensure t)
+  (require 'org)
+  (org-babel-load-file
+   (expand-file-name "README.org"
+                     user-emacs-directory))
 #+end_src
 
 Unfortunately, this approach requires that org mode is loaded before the contents of the custom configuration. This means that package repository initialisation must take place first to ensure that a single org version is used, not loaded partially once and then again in the literate configuration. In some cases, users have been able to export the contents of a literate configuration using only primitive emacs-lisp functions, but I didn't want to work out the required regular expressions.
@@ -40,38 +40,38 @@ Unfortunately, this approach requires that org mode is loaded before the content
 All of the remaining initialisation can be performed from the literate file itself. The first step is calling some functions to disable unhelpful GUI components.
 
 #+begin_src emacs-lisp
-(menu-bar-mode -1) (tool-bar-mode -1)
-(scroll-bar-mode -1)
-(fringe-mode '(0 . 0))
-(global-auto-revert-mode 1)
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-(global-set-key (kbd "M-u") 'universal-argument)
+  (menu-bar-mode -1) (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (fringe-mode '(0 . 0))
+  (global-auto-revert-mode 1)
+  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+  (global-set-key (kbd "M-u") 'universal-argument)
 #+end_src
 
 And then set the values of some variables.
 
 #+begin_src emacs-lisp
-(setq-default indent-tabs-mode t)
-(setq-default c-basic-offset 4)
-(setq inhibit-startup-echo-area-message "alex"
-      inhibit-startup-message t
-      initial-scratch-message "; Hello!"
-      tab-width 4
-      use-dialog-box nil
-      scroll-conservatively 1000
-      backup-inhibited t
-      auto-save-default nil
-      global-auto-revert-non-file-buffers t
-      x-select-enable-clipboard nil
-      user-full-name "Alexander Neville")
+  (setq-default indent-tabs-mode t)
+  (setq-default c-basic-offset 4)
+  (setq inhibit-startup-echo-area-message "alex"
+        inhibit-startup-message t
+        initial-scratch-message "; Hello!"
+        tab-width 4
+        use-dialog-box nil
+        scroll-conservatively 1000
+        backup-inhibited t
+        auto-save-default nil
+        global-auto-revert-non-file-buffers t
+        x-select-enable-clipboard nil
+        user-full-name "Alexander Neville")
 #+end_src
 
 The default font is given an absolute height of =100=. The height of other fonts is specified relative to the height of the default font. In this case =:height 1.0= can be omitted.
 
 #+begin_src emacs-lisp
-(set-face-attribute 'default nil :family "Iosevka Nerd Font" :height 100)
-(set-face-attribute 'variable-pitch nil :family "Noto Sans")
-(set-face-attribute 'fixed-pitch nil :family "Iosevka Nerd Font")
+  (set-face-attribute 'default nil :family "Iosevka Nerd Font" :height 100)
+  (set-face-attribute 'variable-pitch nil :family "Noto Sans")
+  (set-face-attribute 'fixed-pitch nil :family "Iosevka Nerd Font")
 #+end_src
 
 * Packages
@@ -83,91 +83,92 @@ There are thousands of packages available to extend emacs. =M-x list-packages<CR
 The /modus themes/ are very feature rich and roll a lot of initialisation into one package. The [[https://protesilaos.com/emacs/modus-themes][official documentation]] is the best place to find out about the configuration options available.
 
 #+begin_src emacs-lisp :tangle no
-(use-package modus-themes
-  :config
-  (setq modus-themes-mode-line '(accented)
-        modus-themes-region '(accented bg-only)
-        modus-themes-completions '(opinionated)
-        modus-themes-bold-constructs t
-        modus-themes-italic-constructs t
-        modus-themes-paren-match '(bold underline)
-        modus-themes-syntax '(faint)
-        modus-themes-subtle-line-numbers t
-        modus-themes-org-blocks 'gray-background
-        modus-themes-scale-headings t
-        modus-themes-common-palette-overrides modus-themes-preset-overrides-faint
-        modus-themes-common-palette-overrides
-        '((fg-heading-1 blue)
-          (fg-heading-2 cyan)
-          (fg-heading-3 green)
+  (use-package modus-themes
+    :config
+    (setq modus-themes-mode-line '(accented)
+          modus-themes-region '(accented bg-only)
+          modus-themes-completions '(opinionated)
+          modus-themes-bold-constructs t
+          modus-themes-italic-constructs t
+          modus-themes-paren-match '(bold underline)
+          modus-themes-syntax '(faint)
+          modus-themes-subtle-line-numbers t
+          modus-themes-org-blocks 'gray-background
+          modus-themes-scale-headings t
+          modus-themes-common-palette-overrides modus-themes-preset-overrides-faint
+          modus-themes-common-palette-overrides
+          '((fg-heading-1 blue)
+            (fg-heading-2 cyan)
+            (fg-heading-3 green)
+            )
+          modus-vivendi-palette-overrides
+          '((bg-main "#1e1e1e")
+            (bg-dim "#262626")
+            (fg-main "#d4d4d4")
+            )
           )
-        modus-vivendi-palette-overrides
-        '((bg-main "#1e1e1e")
-          (bg-dim "#262626")
-          (fg-main "#d4d4d4")
-          )
-        )
-  (setq modus-themes-common-palette-overrides
-        '((border-mode-line-active bg-mode-line-active)
-          (border-mode-line-inactive bg-mode-line-inactive)))
-  (load-theme 'modus-vivendi t))
+    (setq modus-themes-common-palette-overrides
+          '((border-mode-line-active bg-mode-line-active)
+            (border-mode-line-inactive bg-mode-line-inactive)))
+    (load-theme 'modus-vivendi t))
 
-(defun my-modus-themes-custom-faces ()
-  (modus-themes-with-colors
-    (custom-set-faces
-     ;; Add "padding" to the mode lines
-     `(mode-line ((,c :underline ,border-mode-line-active
-                      :overline ,border-mode-line-active
-                      :box (:line-width 10 :color ,bg-mode-line-active))))
-     `(mode-line-inactive ((,c :underline ,border-mode-line-inactive
-                               :overline ,border-mode-line-inactive
-                               :box (:line-width 10 :color ,bg-mode-line-inactive)))))))
+  (defun my-modus-themes-custom-faces ()
+    (modus-themes-with-colors
+     (custom-set-faces
+      ;; Add "padding" to the mode lines
+      `(mode-line ((,c :underline ,border-mode-line-active
+                       :overline ,border-mode-line-active
+                       :box (:line-width 10 :color ,bg-mode-line-active))))
+      `(mode-line-inactive ((,c :underline ,border-mode-line-inactive
+                                :overline ,border-mode-line-inactive
+                                :box (:line-width 10 :color ,bg-mode-line-inactive)))))))
 
-;; ESSENTIAL to make the underline move to the bottom of the box:
-(setq x-underline-at-descent-line t)
+  ;; ESSENTIAL to make the underline move to the bottom of the box:
+  (setq x-underline-at-descent-line t)
 
-(add-hook 'modus-themes-after-load-theme-hook #'my-modus-themes-custom-faces)
+  (add-hook 'modus-themes-after-load-theme-hook #'my-modus-themes-custom-faces)
 #+end_src
 
 The set of /doom emacs/ themes is also quite nice. I only ever load one of /modus/ or /doom/.
 
 #+begin_src emacs-lisp
-(use-package doom-themes
-  :ensure t
-  :config
-  (setq doom-themes-enable-bold t
-        doom-themes-enable-italic t)
-  (doom-themes-org-config)
-  (load-theme 'doom-one t))
+  (use-package doom-themes
+    :ensure t
+    :config
+    (setq doom-themes-enable-bold t
+          doom-themes-enable-italic t)
+    (doom-themes-org-config)
+    (load-theme 'doom-one t))
 
-(use-package all-the-icons
-  :ensure t)
 
-(use-package doom-modeline
-  :ensure t
-  :hook (after-init . doom-modeline-mode)
-  :config
-  (setq doom-modeline-height 50))
+  (use-package all-the-icons
+    :ensure t)
+
+  (use-package doom-modeline
+    :ensure t
+    :hook (after-init . doom-modeline-mode)
+    :config
+    (setq doom-modeline-height 50))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
-(use-package base16-theme
-  :ensure t
-  :demand
-  :init
-  (setq base16-theme-distinct-fringe-background nil)
-  (setq base16-theme-highlight-mode-line 'contrast)
-  (setq base16-theme-256-color-source 'colors)
-  :config
-  (load-theme 'base16-gruvbox-material-dark-hard t)
-  ; Set the cursor color based on the evil state
-  (defvar myconfig/base16-colors base16-gruvbox-material-dark-hard-theme-colors)
-  (setq evil-emacs-state-cursor   `(,(plist-get myconfig/base16-colors :base0D) box)
-        evil-insert-state-cursor  `(,(plist-get myconfig/base16-colors :base0D) bar)
-        evil-motion-state-cursor  `(,(plist-get myconfig/base16-colors :base0E) box)
-        evil-normal-state-cursor  `(,(plist-get myconfig/base16-colors :base0B) box)
-        evil-replace-state-cursor `(,(plist-get myconfig/base16-colors :base08) bar)
-        evil-visual-state-cursor  `(,(plist-get myconfig/base16-colors :base09) box)))
+  (use-package base16-theme
+    :ensure t
+    :demand
+    :init
+    (setq base16-theme-distinct-fringe-background nil)
+    (setq base16-theme-highlight-mode-line 'contrast)
+    (setq base16-theme-256-color-source 'colors)
+    :config
+    (load-theme 'base16-gruvbox-material-dark-hard t)
+                                          ; Set the cursor color based on the evil state
+    (defvar myconfig/base16-colors base16-gruvbox-material-dark-hard-theme-colors)
+    (setq evil-emacs-state-cursor   `(,(plist-get myconfig/base16-colors :base0D) box)
+          evil-insert-state-cursor  `(,(plist-get myconfig/base16-colors :base0D) bar)
+          evil-motion-state-cursor  `(,(plist-get myconfig/base16-colors :base0E) box)
+          evil-normal-state-cursor  `(,(plist-get myconfig/base16-colors :base0B) box)
+          evil-replace-state-cursor `(,(plist-get myconfig/base16-colors :base08) bar)
+          evil-visual-state-cursor  `(,(plist-get myconfig/base16-colors :base09) box)))
 #+end_src
 
 ** Completion
@@ -175,35 +176,73 @@ The set of /doom emacs/ themes is also quite nice. I only ever load one of /modu
 Replace the default =M-x= behaviour with a /fuzzy finder/ experience. Ivy also includes /swiper/, which is a great way to search a file that the buffer is visiting.
 
 #+begin_src emacs-lisp
-(use-package ivy
-  :diminish
-  :bind (("C-s" . swiper)
-         :map ivy-minibuffer-map
-         ("TAB" . ivy-alt-done)
-         ("C-l" . ivy-alt-done)
-         ("C-j" . ivy-next-line)
-         ("C-k" . ivy-previous-line)
-         :map ivy-switch-buffer-map
-         ("C-k" . ivy-previous-line)
-         ("C-l" . ivy-done)
-         ("C-d" . ivy-switch-buffer-kill)
-         :map ivy-reverse-i-search-map
-         ("C-k" . ivy-previous-line)
-         ("C-d" . ivy-reverse-i-search-kill))
-  :config
-  (setq ivy-initial-inputs-alist nil)
-  (ivy-mode 1))
+  (use-package ivy
+    :diminish
+    :bind (("C-s" . swiper)
+           :map ivy-minibuffer-map
+           ("TAB" . ivy-alt-done)
+           ("C-l" . ivy-alt-done)
+           ("C-j" . ivy-next-line)
+           ("C-k" . ivy-previous-line)
+           :map ivy-switch-buffer-map
+           ("C-k" . ivy-previous-line)
+           ("C-l" . ivy-done)
+           ("C-d" . ivy-switch-buffer-kill)
+           :map ivy-reverse-i-search-map
+           ("C-k" . ivy-previous-line)
+           ("C-d" . ivy-reverse-i-search-kill))
+    :config
+    (setq ivy-initial-inputs-alist nil)
+    (ivy-mode 1))
 
-(use-package ivy-rich
-  :init
-  (ivy-rich-mode 1))
+  (use-package ivy-rich
+    :init
+    (ivy-rich-mode 1))
 
-(use-package counsel
-  :bind (("M-x" . counsel-M-x)
-         ("C-x b" . counsel-ibuffer)
-         ("C-x C-f" . counsel-find-file)
-         :map minibuffer-local-map
-         ("C-r" . 'counsel-minibuffer-history)))
+  (use-package counsel
+    :bind (("M-x" . counsel-M-x)
+           ("C-x b" . counsel-ibuffer)
+           ("C-x C-f" . counsel-find-file)
+           :map minibuffer-local-map
+           ("C-r" . 'counsel-minibuffer-history)))
+#+end_src
+
+** Projectile
+
+/Projectile/ is a package for managing projects. 
+
+#+begin_src emacs-lisp
+  (use-package projectile
+    :config
+    (projectile-mode)
+    (setq projectile-project-search-path '("~/vcon/")
+          projectile-auto-discover t
+          projectile-switch-project-action #'projectile-dired)
+    )
+#+end_src
+
+** Dashboard
+
+#+begin_src emacs-lisp
+  (use-package dashboard
+    :ensure t
+    :config
+    (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*"))
+          dashboard-banner-logo-title "GNU Emacs"
+          dashboard-center-content t
+          dashboard-items '((recents  . 5)
+                            (projects . 5)
+                            )
+          dashboard-set-heading-icons t
+          dashboard-set-file-icons t
+          dashboard-footer-messages '("Do something productive!")
+          dashboard-footer-icon (all-the-icons-octicon "dashboard"
+                                                       :height 1.1
+                                                       :v-adjust -0.05
+                                                       :face 'font-lock-keyword-face)
+          dashboard-set-init-info t
+          )
+    (dashboard-setup-startup-hook))
 #+end_src
 
 ** Keybindings
@@ -211,103 +250,105 @@ Replace the default =M-x= behaviour with a /fuzzy finder/ experience. Ivy also i
 I use Vi/Vim keys in emacs. It would probably be too difficult to use Emacs keys and Vi keys simultaneously in different applications. I also use the Vi keys in tmux, zsh and my window manager, so Emacs would be the exception.
 
 #+begin_src emacs-lisp
-(use-package evil
-  :init
-  (setq evil-want-integration t)
-  (setq evil-want-keybinding nil)
-  (setq evil-want-C-u-scroll t)
-  (setq evil-want-C-i-jump nil)
-  :config
-  (evil-mode 1)
-  (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
-  (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
-  (evil-global-set-key 'motion "j" 'evil-next-visual-line)
-  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
-  (evil-global-set-key 'motion "0" 'evil-beginning-of-visual-line)
-  (evil-global-set-key 'motion "$" 'evil-end-of-visual-line)
-  (evil-set-initial-state 'messages-buffer-mode 'normal)
-  (evil-set-initial-state 'dashboard-mode 'normal))
+  (use-package evil
+    :init
+    (setq evil-want-integration t)
+    (setq evil-want-keybinding nil)
+    (setq evil-want-C-u-scroll t)
+    (setq evil-want-C-i-jump nil)
+    :config
+    (evil-mode 1)
+    (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+    (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+    (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+    (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+    (evil-global-set-key 'motion "0" 'evil-beginning-of-visual-line)
+    (evil-global-set-key 'motion "$" 'evil-end-of-visual-line)
+    (evil-set-initial-state 'messages-buffer-mode 'normal)
+    (evil-set-initial-state 'dashboard-mode 'normal))
 
-(with-eval-after-load 'evil-maps
-  (define-key evil-motion-state-map (kbd "RET") nil))
+  (with-eval-after-load 'evil-maps
+    (define-key evil-motion-state-map (kbd "RET") nil))
 
-(use-package evil-collection
-  :after evil
-  :config
-  (evil-collection-init))
+  (use-package evil-collection
+    :after evil
+    :config
+    (evil-collection-init))
 #+end_src
 
 Leader key configuration, similar to my Neovim configuration. /Which-key/ will show you a list of keybinding from the current point after a short delay. This replaces some of the discover-ability lost by disabling the UI.
 
 #+begin_src emacs-lisp
-(use-package general
-  :config
-  (general-evil-setup t)
-  (general-create-definer myconfig/leader-keys
+  (use-package general
+    :config
+    (general-evil-setup t)
+    (general-create-definer myconfig/leader-keys
       :prefix "SPC"
       :global-prefix "C-c"))
 
-(myconfig/leader-keys 'normal 'override
-  ;; switch/navigate
-  "bb" 'counsel-switch-buffer
-  "ff" 'counsel-find-file
-  "ss" 'swiper
-  ;; functions
-  "d" 'dired
-  "p" 'clipboard-yank
-  "y" 'clipboard-kill-ring-save
-  "e" 'eval-buffer
-  "x" 'counsel-M-x
-  "i" 'ibuffer
-  "c" 'evil-delete-buffer
-  "t" 'counsel-load-theme
-  ;; files
-  "le" '(lambda () (interactive) (find-file "~/.config/emacs/README.org"))
-  ;; org
-  "or" 'org-mode-restart
-  "op" 'org-latex-preview
-  "otl" 'org-toggle-link-display
-  "oti" 'org-toggle-inline-images
-  "otb" 'org-toggle-blocks
-  "by" 'org-copy-src-block
-  "bY" 'org-clipboard-copy-src-block
-)
+  (myconfig/leader-keys 'normal 'override
+    ;; switch/navigate
+    "bb" 'counsel-switch-buffer
+    "ff" 'counsel-find-file
+    "ss" 'swiper
+    ;; functions
+    "d" 'dired
+                                          ; "p" 'clipboard-yank
+    "y" 'clipboard-kill-ring-save
+    "e" 'eval-buffer
+    "x" 'counsel-M-x
+    "i" 'ibuffer
+    "c" 'evil-delete-buffer
+    "t" 'counsel-load-theme
+    ;; files
+    "le" '(lambda () (interactive) (find-file "~/.config/emacs/README.org"))
+    ;; org
+    "or" 'org-mode-restart
+    "op" 'org-latex-preview
+    "otl" 'org-toggle-link-display
+    "oti" 'org-toggle-inline-images
+    "otb" 'org-toggle-blocks
+    "oby" 'org-copy-src-block
+    "obY" 'org-clipboard-copy-src-block
+    ;; projectile
+    "pp" 'projectile-switch-project
+    )
 
-(use-package which-key
-  :init (which-key-mode)
-  :diminish which-key-mode
-  :config
-  (setq which-key-idle-delay 0.01))
+  (use-package which-key
+    :init (which-key-mode)
+    :diminish which-key-mode
+    :config
+    (setq which-key-idle-delay 0.01))
 #+end_src
 
 Define some interactive functions for those bindings.
 
 #+begin_src emacs-lisp
-(defun org-copy-src-block ()
-  (interactive)
-  (org-edit-src-code)
-  (beginning-of-buffer)
-  (mark-end-of-buffer)
-  (kill-ring-save (point) (mark))
-  (org-edit-src-abort)
-  (message "Copied to register!"))
+  (defun org-copy-src-block ()
+    (interactive)
+    (org-edit-src-code)
+    (beginning-of-buffer)
+    (mark-end-of-buffer)
+    (kill-ring-save (point) (mark))
+    (org-edit-src-abort)
+    (message "Copied to register!"))
 
-(defun org-clipboard-copy-src-block ()
-  (interactive)
-  (org-edit-src-code)
-  (beginning-of-buffer)
-  (mark-end-of-buffer)
-  (clipboard-kill-ring-save (point) (mark))
-  (org-edit-src-abort)
-  (message "Copied to clipboard!"))
+  (defun org-clipboard-copy-src-block ()
+    (interactive)
+    (org-edit-src-code)
+    (beginning-of-buffer)
+    (mark-end-of-buffer)
+    (clipboard-kill-ring-save (point) (mark))
+    (org-edit-src-abort)
+    (message "Copied to clipboard!"))
 
-(defvar org-blocks-hidden nil)
-(defun org-toggle-blocks ()
-  (interactive)
-  (if org-blocks-hidden
-      (org-show-block-all)
-    (org-hide-block-all))
-  (setq-local org-blocks-hidden (not org-blocks-hidden)))
+  (defvar org-blocks-hidden nil)
+  (defun org-toggle-blocks ()
+    (interactive)
+    (if org-blocks-hidden
+        (org-show-block-all)
+      (org-hide-block-all))
+    (setq-local org-blocks-hidden (not org-blocks-hidden)))
 #+end_src
 
 * Programming
@@ -315,55 +356,61 @@ Define some interactive functions for those bindings.
 This is a very quick programming setup, I won't use Emacs for programming very often. Enable line highlighting and line numbers.
 
 #+begin_src emacs-lisp
-(setq display-line-numbers-type 'relative)
-(add-hook 'prog-mode-hook #'display-line-numbers-mode)
-(add-hook 'prog-mode-hook #'hl-line-mode)
+  (setq display-line-numbers-type 'relative)
+  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+  (add-hook 'prog-mode-hook #'hl-line-mode)
 #+end_src
 
 Optional tree-sitter support.
 
 #+begin_src emacs-lisp :tangle no
-(use-package tree-sitter
-  :config
-  (global-tree-sitter-mode))
-(use-package tree-sitter-langs)
+  (use-package tree-sitter
+    :config
+    (global-tree-sitter-mode))
+  (use-package tree-sitter-langs)
 #+end_src
 
 Company is a completion front-end.
 
-#+begin_src emacs-lisp
-(use-package company
-  :config
-  (setq company-minimum-prefix-length 1
-	  company-idle-delay 0
-        company-tooltip-limit 6
-        company-backends '((company-capf company-dabbrev-code company-files company-yasnippet)))
-  )
-(defun company-text-mode-hook ()
-  (setq-local company-backends
-              '((company-capf company-yasnippet company-dabbrev company-ispell :separate)
-                )))
-(setq ispell-alternate-dictionary "/home/alex/.config/emacs/completion-words.txt")
-(add-hook 'text-mode-hook #'company-text-mode-hook)
-(add-hook 'text-mode-hook #'company-mode)
-(add-hook 'prog-mode-hook #'company-mode)
+#+begin_src emacs-lisp :tangle no
+  (use-package company
+    :config
+    (setq company-minimum-prefix-length 1
+          company-idle-delay 0
+          company-tooltip-limit 6
+          company-tempo-expand t
+          company-backends '((company-capf company-dabbrev-code company-files company-yasnippet)))
+    )
+  (defun my-company-org-mode-hook ()
+    (setq-local company-backends
+                '((company-capf company-yasnippet company-dabbrev company-ispell company-tempo :separate)
+                  )))
+  (setq ispell-alternate-dictionary "/home/alex/.config/emacs/completion-words.txt")
 
-(use-package company-box
-  :hook (company-mode . company-box-mode))
+  (with-eval-after-load 'company
+    (define-key company-active-map (kbd "TAB") nil))
+
+                                          ; (add-hook 'text-mode-hook #'company-text-mode-hook)
+  (add-hook 'org-mode-hook #'my-company-org-mode-hook)
+  (add-hook 'org-mode-hook #'company-mode)
+                                          ; (add-hook 'text-mode-hook #'company-mode)
+  (add-hook 'prog-mode-hook #'company-mode)
+
+  (use-package company-box
+    :hook (company-mode . company-box-mode))
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package lsp-mode
-  :init
-  (setq lsp-keymap-prefix "C-c l")
-  :commands lsp)
+  (use-package lsp-mode
+    :init
+    (setq lsp-keymap-prefix "C-c l")
+    :commands lsp)
 
-
-(use-package smartparens
-  :config
-  (require 'smartparens-config)
-  ; (add-hook 'prog-mode-hook #'smartparens-mode))
-  (smartparens-global-mode 1))
+  (use-package smartparens
+    :config
+    (require 'smartparens-config)
+    (add-hook 'prog-mode-hook #'smartparens-mode))
+                                          ; (smartparens-global-mode 1))
 #+end_src
 
 ** Snippets
@@ -371,13 +418,13 @@ Company is a completion front-end.
 In the past I haven't used snippets too heavily, but I am gradually getting used to the idea. As it is so easy to set up in Emacs, I will have snippets.
 
 #+begin_src emacs-lisp
-(use-package yasnippet
-  :config
-  ; (setq yas-snippet-dirs '("~/.config/emacs/snippets"))
-  ; (add-hook 'prog-mode-hook #'yas-minor-mode)
-  ; (add-hook 'prog-mode-hook #'yas-minor-mode))
-  (yas-global-mode 1))
-(use-package yasnippet-snippets)
+  (use-package yasnippet
+    :config
+                                          ; (setq yas-snippet-dirs '("~/.config/emacs/snippets"))
+                                          ; (add-hook 'prog-mode-hook #'yas-minor-mode)
+                                          ; (add-hook 'prog-mode-hook #'yas-minor-mode))
+    (yas-global-mode 1))
+  (use-package yasnippet-snippets)
 #+end_src
 
 * Org Mode
@@ -389,62 +436,62 @@ In the past I haven't used snippets too heavily, but I am gradually getting used
 Define a function to evaluate when org mode is loaded, this is easier than many =(add-hook 'org-mode-hook ...)= expressions.
 
 #+begin_src emacs-lisp
-(defun org-mode-setup ()
-  (org-indent-mode 1)
-  ;; (variable-pitch-mode 1)
-  (visual-line-mode nil)
-  (setq org-hide-emphasis-markers t
-        org-return-follows-link  t
-        org-list-allow-alphabetical t
-        org-catch-invisible-edits 'smart
-        org-use-sub-superscripts '{}
-        org-export-with-sub-superscripts '{}
-        org-src-preserve-indentation nil
-        org-edit-src-content-indentation 0
-        org-format-latex-options (plist-put org-format-latex-options :scale 3.0)
-        org-src-fontify-natively t
-	  org-image-actual-width (list 600)
-        org-ellipsis " …"
-        org-link-frame-setup
-            '((vm . vm-visit-folder-other-frame)
-              (vm-imap . vm-visit-imap-folder-other-frame)
-              (gnus . org-gnus-no-new-news)
-              (file . find-file)
-              (wl . wl-other-frame))
-  ))
+  (defun org-mode-setup ()
+    (org-indent-mode 1)
+    ;; (variable-pitch-mode 1)
+    (visual-line-mode nil)
+    (setq org-hide-emphasis-markers t
+          org-return-follows-link  t
+          org-list-allow-alphabetical t
+          org-catch-invisible-edits 'smart
+          org-use-sub-superscripts '{}
+          org-export-with-sub-superscripts '{}
+          org-src-preserve-indentation nil
+          org-edit-src-content-indentation 2
+          org-format-latex-options (plist-put org-format-latex-options :scale 3.0)
+          org-src-fontify-natively t
+          org-image-actual-width (list 600)
+          org-ellipsis " …"
+          org-link-frame-setup
+          '((vm . vm-visit-folder-other-frame)
+            (vm-imap . vm-visit-imap-folder-other-frame)
+            (gnus . org-gnus-no-new-news)
+            (file . find-file)
+            (wl . wl-other-frame))
+          ))
 #+end_src
 
 Call the set-up function when org mode is loaded.
 
 #+begin_src emacs-lisp
-(require 'org-indent)
-(require 'org-src)
-(setq
-  org-startup-folded 'nofold
-  org-startup-with-latex-preview nil ; slow
-  org-startup-with-inline-images nil ; slow
-)
-(add-hook 'org-mode-hook 'org-mode-setup)
+  (require 'org-indent)
+  (require 'org-src)
+  (setq
+   org-startup-folded 'nofold
+   org-startup-with-latex-preview nil ; slow
+   org-startup-with-inline-images nil ; slow
+   )
+  (add-hook 'org-mode-hook 'org-mode-setup)
 #+end_src
 
 Structure templates make inserting source blocks much easier.
 
 #+begin_src emacs-lisp
-(require 'org-tempo)
-(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
-(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-(add-to-list 'org-structure-template-alist '("py" . "src python"))
+  (require 'org-tempo)
+  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("py" . "src python"))
 #+end_src
 
 Org babel is used for literate programming, including handling this very file.
 
 #+begin_src emacs-lisp
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((emacs-lisp . t)
-   (python . t)))
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (python . t)))
 
-(setq org-confirm-babel-evaluate nil)
+  (setq org-confirm-babel-evaluate nil)
 #+end_src
 
 ** Fonts
@@ -452,67 +499,67 @@ Org babel is used for literate programming, including handling this very file.
 To use =varaible-pitch-mode=, some faces need to be set to mono-space, such as code blocks and tables.
 
 #+begin_src emacs-lisp :tangle no
-(set-face-attribute 'org-block-begin-line nil :inherit '(shadow fixed-pitch))
-(set-face-attribute 'org-block-end-line nil :inherit '(shadow fixed-pitch))
-(set-face-attribute 'org-block nil :inherit 'fixed-pitch)
-(set-face-attribute 'org-code nil :inherit 'fixed-pitch)
-(set-face-attribute 'org-indent nil :inherit '(org-hide fixed-pitch))
-(set-face-attribute 'org-document-info-keyword nil :inherit '(shadow fixed-pitch))
-(set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-(set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-(set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-(set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-block-begin-line nil :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-block-end-line nil :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-block nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-code nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-indent nil :inherit '(org-hide fixed-pitch))
+  (set-face-attribute 'org-document-info-keyword nil :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
 #+end_src
 
 The /mixed-pitch/ package does many of the same things.
 
 #+begin_src emacs-lisp :tangle no
-(use-package mixed-pitch
-  :hook
-  (org-mode . mixed-pitch-mode))
+  (use-package mixed-pitch
+    :hook
+    (org-mode . mixed-pitch-mode))
 #+end_src
 
 Change the height of the face used to display /org-mode/ headings and the document title.
 
 #+begin_src emacs-lisp
-(defun org-heading-face-setup ()
-  (dolist (face '((org-level-1 . 1.5)
-                  (org-level-2 . 1.4)
-                  (org-level-3 . 1.3)
-                  (org-level-4 . 1.2)
-                  (org-level-5 . 1.1)
-                  (org-level-6 . 1.1)
-                  (org-level-7 . 1.1)
-                  (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :family
-                        (face-attribute 'default :family)
-                        :weight 'bold :height (cdr face)))
-  )
+  (defun org-heading-face-setup ()
+    (dolist (face '((org-level-1 . 1.5)
+                    (org-level-2 . 1.4)
+                    (org-level-3 . 1.3)
+                    (org-level-4 . 1.2)
+                    (org-level-5 . 1.1)
+                    (org-level-6 . 1.1)
+                    (org-level-7 . 1.1)
+                    (org-level-8 . 1.1)))
+      (set-face-attribute (car face) nil :family
+                          (face-attribute 'default :family)
+                          :weight 'bold :height (cdr face)))
+    )
 
-(add-hook 'org-mode-hook 'org-heading-face-setup)
+  (add-hook 'org-mode-hook 'org-heading-face-setup)
 #+end_src
 
 #+begin_src emacs-lisp
-(defun org-title-face-setup ()
-  (set-face-attribute 'org-document-title nil :family (face-attribute 'default :family) :weight 'bold :height 1.6)
-)
+  (defun org-title-face-setup ()
+    (set-face-attribute 'org-document-title nil :family (face-attribute 'default :family) :weight 'bold :height 1.6)
+    )
 
-(add-hook 'org-mode-hook 'org-title-face-setup)
+  (add-hook 'org-mode-hook 'org-title-face-setup)
 #+end_src
 
 Replace bullet points (lines with leading dashes) with Unicode characters.
 
 #+begin_src emacs-lisp
-(font-lock-add-keywords 'org-mode
-                        '(("^ *\\([-]\\) "
-                          (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([-]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 #+end_src
 
 Ensure latex blocks are highlighted, but keep the default text background.
 
 #+begin_src emacs-lisp
-(setq org-highlight-latex-and-related '(latex native entities))
-(add-to-list 'org-src-block-faces '("latex" (:inherit default :extend t)))
+  (setq org-highlight-latex-and-related '(latex native entities))
+  (add-to-list 'org-src-block-faces '("latex" (:inherit default :extend t)))
 #+end_src
 
 ** Agenda & TODOs
@@ -520,10 +567,10 @@ Ensure latex blocks are highlighted, but keep the default text background.
 I am now experimenting with some additional org features, besides those used for authoring. I am modifying the sequence(s) of TODO keywords and adding a prefix letter to each, for easy navigation. Creating and changing the state of a TODO item records a timestamp and switching to the cancelled state additionally requires a comment. This information is placed inside a drawer.
 
 #+begin_src emacs-lisp
-(setq org-todo-keywords
-      '((sequence "TODO(t!)" "ACTIVE(a!)" "|" "DONE(d!)" "CANCELED(c@)")
-        (sequence "QUESTION(q!)"  "|" "SOLVED(s@)"))
-      org-log-into-drawer t)
+  (setq org-todo-keywords
+        '((sequence "TODO(t!)" "ACTIVE(a!)" "|" "DONE(d!)" "CANCELED(c@)")
+          (sequence "QUESTION(q!)"  "|" "SOLVED(s@)"))
+        org-log-into-drawer t)
 #+end_src
 
 ** Extra Packages
@@ -531,48 +578,48 @@ I am now experimenting with some additional org features, besides those used for
 Optionally use a package like /org-modern/ to style the buffer. I am not using it currently.
 
 #+begin_src emacs-lisp :tangle no
-(use-package org-modern
-  :hook (org-mode . org-modern-mode))
+  (use-package org-modern
+    :hook (org-mode . org-modern-mode))
 #+end_src
 
 Most of the time I choose to hide a few org syntax elements. The /org-bullets/ package replaces the asterisks before each heading with Unicode symbols. /org-appear/ shows emphasis markers when the cursor hovers over emphasised text.
 
 #+begin_src emacs-lisp
-(use-package org-bullets
-  :after org
-  :hook (org-mode . org-bullets-mode)
-  :custom
-  (org-bullets-bullet-list '("●" "○" "●" "○" "●" "○" "●")))
+  (use-package org-bullets
+    :after org
+    :hook (org-mode . org-bullets-mode)
+    :custom
+    (org-bullets-bullet-list '("●" "○" "●" "○" "●" "○" "●")))
 
-(use-package org-appear
-  :hook (org-mode . org-appear-mode)
-  :config
-  (setq org-appear-autoemphasis t
-	org-appear-autolinks t)
-  (run-at-time nil nil #'org-appear--set-elements))
+  (use-package org-appear
+    :hook (org-mode . org-appear-mode)
+    :config
+    (setq org-appear-autoemphasis t
+          org-appear-autolinks t)
+    (run-at-time nil nil #'org-appear--set-elements))
 #+end_src
 
 For writing text, =visual-line-mode= is enabled. The /visual-fill-column/ package can set the point at which text wraps and centre text in the buffer, which is very helpful.
 
 #+begin_src emacs-lisp
-(use-package visual-fill-column
-  :config
-  (setq-default visual-fill-column-center-text t)
-  (setq-default visual-fill-column-width 100))
-(add-hook 'visual-line-mode-hook #'visual-fill-column-mode)
-(advice-add 'text-scale-adjust :after #'visual-fill-column-adjust)
+  (use-package visual-fill-column
+    :config
+    (setq-default visual-fill-column-center-text t)
+    (setq-default visual-fill-column-width 100))
+  (add-hook 'visual-line-mode-hook #'visual-fill-column-mode)
+  (advice-add 'text-scale-adjust :after #'visual-fill-column-adjust)
 #+end_src
 
 A couple of packages to help with editing latex in org mode. Some snippets have also been loaded.
 
 #+begin_src emacs-lisp
-(use-package cdlatex
-  :config
+  (use-package cdlatex
+    :config
     (setq cdlatex-simplify-sub-super-scripts nil)
     (add-hook 'org-mode-hook #'turn-on-org-cdlatex))
-(use-package org-fragtog
-  :config
-(add-hook 'org-mode-hook 'org-fragtog-mode))
+  (use-package org-fragtog
+    :config
+    (add-hook 'org-mode-hook 'org-fragtog-mode))
 #+end_src
 
 ** Spell Checking
@@ -580,23 +627,23 @@ A couple of packages to help with editing latex in org mode. Some snippets have 
 An essential feature for writing text. /Ispell/ ignores words in my private dictionary and code inside source blocks. /Flycheck/ highlights possible errors in the buffer.
 
 #+begin_src emacs-lisp
-(setq
- ispell-program-name "aspell"
- ispell-local-dictionary "british-ise"
- ispell-personal-dictionary "~/.config/emacs/british-ise.pws"
-)
-(defun my_config/org-ispell ()
-  "Configure `ispell-skip-region-alist' for `org-mode'."
-  (make-local-variable 'ispell-skip-region-alist)
-  (add-to-list 'ispell-skip-region-alist '(org-property-drawer-re))
-  (add-to-list 'ispell-skip-region-alist '("~" "~"))
-  (add-to-list 'ispell-skip-region-alist '("=" "="))
-  (add-to-list 'ispell-skip-region-alist '("^#\\+BEGIN_SRC" . "^#\\+END_SRC"))
-  (add-to-list 'ispell-skip-region-alist '("^#\\+begin_src" . "^#\\+end_src")))
-(add-hook 'org-mode-hook #'my_config/org-ispell)
-(dolist (hook '(org-mode-hook))
-  (add-hook hook (lambda () (flyspell-mode 1))))
-(add-hook 'flyspell-mode-hook 'flyspell-buffer)
+  (setq
+   ispell-program-name "aspell"
+   ispell-local-dictionary "british-ise"
+   ispell-personal-dictionary "~/.config/emacs/british-ise.pws"
+   )
+  (defun my_config/org-ispell ()
+    "Configure `ispell-skip-region-alist' for `org-mode'."
+    (make-local-variable 'ispell-skip-region-alist)
+    (add-to-list 'ispell-skip-region-alist '(org-property-drawer-re))
+    (add-to-list 'ispell-skip-region-alist '("~" "~"))
+    (add-to-list 'ispell-skip-region-alist '("=" "="))
+    (add-to-list 'ispell-skip-region-alist '("^#\\+BEGIN_SRC" . "^#\\+END_SRC"))
+    (add-to-list 'ispell-skip-region-alist '("^#\\+begin_src" . "^#\\+end_src")))
+  (add-hook 'org-mode-hook #'my_config/org-ispell)
+  (dolist (hook '(org-mode-hook))
+    (add-hook hook (lambda () (flyspell-mode 1))))
+  (add-hook 'flyspell-mode-hook 'flyspell-buffer)
 #+end_src
 
 ** Export
@@ -604,23 +651,23 @@ An essential feature for writing text. /Ispell/ ignores words in my private dict
 In org mode it is convenient to have many levels of headline nesting, but in HTML and latex the practical number of available heading levels is limited. In HTML, the tags =h1, ..., h6= are available, with =h1= being used for the document title, leaving a maximum of 5 levels. In the default latex /article/ class, =subsubsection= is the lowest heading level above paragraph, which is 3 levels. If more headings are required the should be changed to book or report.
 
 #+begin_src text :tangle no
-5. part           <- report/book
-4. chapter
-3. section        <- article
-2. subsection
-1. subsubsection
+  5. part           <- report/book
+  4. chapter
+  3. section        <- article
+  2. subsection
+  1. subsubsection
 #+end_src
 
 Set the maximum headline export level to 3, for the reasons given above. This can be changed on a file-by-file basis. Other settings are set to false by default.
 
 #+begin_src emacs-lisp
-(setq org-export-headline-levels 3
-      org-export-with-title nil
-      org-export-with-toc nil
-      org-export-with-author nil
-      org-export-with-date nil
-      org-export-with-timestamps nil
-      org-export-time-stamp-file nil)
+  (setq org-export-headline-levels 3
+        org-export-with-title nil
+        org-export-with-toc nil
+        org-export-with-author nil
+        org-export-with-date nil
+        org-export-with-timestamps nil
+        org-export-time-stamp-file nil)
 #+end_src
 
 *** Latex
@@ -628,7 +675,7 @@ Set the maximum headline export level to 3, for the reasons given above. This ca
 Latex is a uniquely powerful typesetting system, but I would rather not worry about latex things when trying to write documents. The slightly more simple org syntax with the ability to embed latex fragments where required is a much better system. Org must be configured to export documents to latex properly.
 
 #+begin_src emacs-lisp
-(require 'ox-latex)
+  (require 'ox-latex)
 #+end_src
 
 There are quite a few of variables to consider to get latex export working correctly:
@@ -640,96 +687,96 @@ There are quite a few of variables to consider to get latex export working corre
 The list =org-latex-classes= is very important. You can add a new class with a /class-name/, /header-string/ and /sectioning-structure/ (see the variable's help for more detailed information). In the header string you can write a preamble, optionally including the contents of =org-*-packages-alist=. So as to avoid repeating latex fragments, break a custom preamble into sections and bind to variables.
 
 #+begin_src emacs-lisp
-(setq
-chapter-redef
-"\\patchcmd{\\chapter}{\\thispagestyle{plain}}{\\thispagestyle{fancy}}{}{}
-\\makeatletter
-\\def\\@makechapterhead#1{
-  \\vspace*{50\\p@}
-  {\\parindent \\z@ \\raggedright \\normalfont
-    \\ifnum \\c@secnumdepth >\\m@ne
-        \\huge\\bfseries \\@chapapp\\space \\thechapter
-        \\Huge\\bfseries \\thechapter.\\space%
-        \\par\\nobreak
-        \\vskip 20\\p@
-    \\fi
-    \\interlinepenalty\\@M
-    \\Huge \\bfseries #1\\par\\nobreak
-    \\vskip 40\\p@
-  }}
-\\makeatother\n"
-report-fancyheader-def
-"\\usepackage{fancyhdr}
-\\pagestyle{fancy}
-\\renewcommand{\\sectionmark}[1]{\\markright{\\thesection~- ~#1}}
-\\renewcommand{\\chaptermark}[1]{\\markboth{\\chaptername~\\thechapter. \\textit{#1}}{}}
-\\fancyhf{}
-\\rfoot{page \\textbf{\\thepage}}
-\\lfoot{\\nouppercase{\\leftmark}}
-\\renewcommand{\\headrulewidth}{0pt}
-\\renewcommand{\\footrulewidth}{0.4pt}\n"
-article-fancyheader-def
-"\\usepackage{fancyhdr}
-\\pagestyle{fancy}
-\\fancyhf{}
-\\rfoot{page \\textbf{\\thepage}}
-\\lfoot{\\nouppercase{\\leftmark}}
-\\renewcommand{\\headrulewidth}{0pt}
-\\renewcommand{\\footrulewidth}{0.4pt}\n"
-common-head
-"\\usepackage{svg}
-\\svgsetup{inkscapelatex=false}
-\\usepackage{blindtext}
-\\usepackage{tcolorbox}
-\\usepackage{etoolbox}
-\\hypersetup{hidelinks}
-\\usemintedstyle{bw}
-\\setminted{autogobble=true, breaklines=true, breakbytokenanywhere=true, fontsize=\\small, xleftmargin=1cm, xrightmargin=1cm}
-\\usepackage[indent=0.5cm]{parskip}
-\\usepackage[a4paper, includefoot, margin=2.54cm]{geometry}\n"
-default-head-setup
-"\\usepackage[utf8]{inputenc}
-\\usepackage{libertine}
-\\usepackage{libertinust1math}
-\\usepackage[T1]{fontenc}
-\\usepackage{graphicx}
-\\usepackage{longtable}
-\\usepackage{wrapfig}
-\\usepackage{rotating}
-\\usepackage[normalem]{ulem}
-\\usepackage{amsmath}
-\\usepackage{amssymb}
-\\usepackage{capt-of}
-\\usepackage{hyperref}
-\\usepackage{minted}\n"
-)
+  (setq
+   chapter-redef
+   "\\patchcmd{\\chapter}{\\thispagestyle{plain}}{\\thispagestyle{fancy}}{}{}
+  \\makeatletter
+  \\def\\@makechapterhead#1{
+    \\vspace*{50\\p@}
+    {\\parindent \\z@ \\raggedright \\normalfont
+      \\ifnum \\c@secnumdepth >\\m@ne
+          \\huge\\bfseries \\@chapapp\\space \\thechapter
+          \\Huge\\bfseries \\thechapter.\\space%
+          \\par\\nobreak
+          \\vskip 20\\p@
+      \\fi
+      \\interlinepenalty\\@M
+      \\Huge \\bfseries #1\\par\\nobreak
+      \\vskip 40\\p@
+    }}
+  \\makeatother\n"
+   report-fancyheader-def
+   "\\usepackage{fancyhdr}
+  \\pagestyle{fancy}
+  \\renewcommand{\\sectionmark}[1]{\\markright{\\thesection~- ~#1}}
+  \\renewcommand{\\chaptermark}[1]{\\markboth{\\chaptername~\\thechapter. \\textit{#1}}{}}
+  \\fancyhf{}
+  \\rfoot{page \\textbf{\\thepage}}
+  \\lfoot{\\nouppercase{\\leftmark}}
+  \\renewcommand{\\headrulewidth}{0pt}
+  \\renewcommand{\\footrulewidth}{0.4pt}\n"
+   article-fancyheader-def
+   "\\usepackage{fancyhdr}
+  \\pagestyle{fancy}
+  \\fancyhf{}
+  \\rfoot{page \\textbf{\\thepage}}
+  \\lfoot{\\nouppercase{\\leftmark}}
+  \\renewcommand{\\headrulewidth}{0pt}
+  \\renewcommand{\\footrulewidth}{0.4pt}\n"
+   common-head
+   "\\usepackage{svg}
+  \\svgsetup{inkscapelatex=false}
+  \\usepackage{blindtext}
+  \\usepackage{tcolorbox}
+  \\usepackage{etoolbox}
+  \\hypersetup{hidelinks}
+  \\usemintedstyle{bw}
+  \\setminted{autogobble=true, breaklines=true, breakbytokenanywhere=true, fontsize=\\small, xleftmargin=1cm, xrightmargin=1cm}
+  \\usepackage[indent=0.5cm]{parskip}
+  \\usepackage[a4paper, includefoot, margin=2.54cm]{geometry}\n"
+   default-head-setup
+   "\\usepackage[utf8]{inputenc}
+  \\usepackage{libertine}
+  \\usepackage{libertinust1math}
+  \\usepackage[T1]{fontenc}
+  \\usepackage{graphicx}
+  \\usepackage{longtable}
+  \\usepackage{wrapfig}
+  \\usepackage{rotating}
+  \\usepackage[normalem]{ulem}
+  \\usepackage{amsmath}
+  \\usepackage{amssymb}
+  \\usepackage{capt-of}
+  \\usepackage{hyperref}
+  \\usepackage{minted}\n"
+   )
 #+end_src
 
 Create each class as a list containing cons cells which represent the headline levels of the latex document. Build the /header-string/ by concatenating latex snippets together and add to the list. Finally, add each user-defined class to =org-latex-classes=.
 
 #+begin_src emacs-lisp
-(setq long-report   '(("\\part{%s}" . "\\part*{%s}")
-		      ("\\chapter{%s}" . "\\chapter*{%s}")
-		      ("\\section{%s}" . "\\section*{%s}")
-		      ("\\subsection{%s}" . "\\subsection*{%s}")
-		      ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
-      short-report  '(("\\chapter{%s}" . "\\chapter*{%s}")
-		      ("\\section{%s}" . "\\section*{%s}")
-		      ("\\subsection{%s}" . "\\subsection*{%s}")
-		      ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
-      custom-article '(("\\section{%s}" . "\\section*{%s}")
-		      ("\\subsection{%s}" . "\\subsection*{%s}")
-		      ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+  (setq long-report   '(("\\part{%s}" . "\\part*{%s}")
+                        ("\\chapter{%s}" . "\\chapter*{%s}")
+                        ("\\section{%s}" . "\\section*{%s}")
+                        ("\\subsection{%s}" . "\\subsection*{%s}")
+                        ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
+        short-report  '(("\\chapter{%s}" . "\\chapter*{%s}")
+                        ("\\section{%s}" . "\\section*{%s}")
+                        ("\\subsection{%s}" . "\\subsection*{%s}")
+                        ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
+        custom-article '(("\\section{%s}" . "\\section*{%s}")
+                         ("\\subsection{%s}" . "\\subsection*{%s}")
+                         ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
 
-(setq report-common-header-string (concat "\\documentclass{report}\n[NO-DEFAULT-PACKAGES]\n[NO-PACKAGES]\n" default-head-setup chapter-redef common-head report-fancyheader-def "[EXTRA]"))
-(add-to-list 'short-report report-common-header-string)
-(add-to-list 'long-report report-common-header-string)
-(add-to-list 'custom-article (concat "\\documentclass{article}\n[NO-DEFAULT-PACKAGES]\n[NO-PACKAGES]\n" default-head-setup common-head article-fancyheader-def "[EXTRA]"))
-(add-to-list 'short-report "short-report")
-(add-to-list 'long-report "long-report")
-(add-to-list 'custom-article "custom-article")
+  (setq report-common-header-string (concat "\\documentclass{report}\n[NO-DEFAULT-PACKAGES]\n[NO-PACKAGES]\n" default-head-setup chapter-redef common-head report-fancyheader-def "[EXTRA]"))
+  (add-to-list 'short-report report-common-header-string)
+  (add-to-list 'long-report report-common-header-string)
+  (add-to-list 'custom-article (concat "\\documentclass{article}\n[NO-DEFAULT-PACKAGES]\n[NO-PACKAGES]\n" default-head-setup common-head article-fancyheader-def "[EXTRA]"))
+  (add-to-list 'short-report "short-report")
+  (add-to-list 'long-report "long-report")
+  (add-to-list 'custom-article "custom-article")
 
-(with-eval-after-load 'ox-latex
+  (with-eval-after-load 'ox-latex
     (add-to-list 'org-latex-classes long-report)
     (add-to-list 'org-latex-classes short-report)
     (add-to-list 'org-latex-classes custom-article))
@@ -744,10 +791,10 @@ The following export options are available in each org document. Prepend a =#+= 
 Use minted for exporting code blocks and set the preferred compiler. The compiler can be changed with the org option =latex_compiler=.
 
 #+begin_src emacs-lisp
-(setq org-latex-listings 'minted
-      org-export-in-background t
-      org-latex-compiler "pdflatex"
-      org-latex-pdf-process '("latexmk -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
+  (setq org-latex-listings 'minted
+        org-export-in-background t
+        org-latex-compiler "pdflatex"
+        org-latex-pdf-process '("latexmk -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
 #+end_src
 
 *** HTML
@@ -755,10 +802,10 @@ Use minted for exporting code blocks and set the preferred compiler. The compile
 For now export with as few features as possible and generate simple HTML.
 
 #+begin_src emacs-lisp
-(require 'ox-html)
-(setq org-html-validation-link nil
-      org-html-preamble nil
-      org-html-postamle nil
-      org-html-head-include-scripts nil
-      org-html-head-include-default-style nil)
+  (require 'ox-html)
+  (setq org-html-validation-link nil
+        org-html-preamble nil
+        org-html-postamle nil
+        org-html-head-include-scripts nil
+        org-html-head-include-default-style nil)
 #+end_src
