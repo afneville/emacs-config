@@ -53,25 +53,26 @@ And then set the values of some variables.
 #+begin_src emacs-lisp
   (setq-default indent-tabs-mode t)
   (setq-default c-basic-offset 4)
+
   (setq inhibit-startup-echo-area-message "alex"
-        inhibit-startup-message t
-        initial-scratch-message "; Hello!"
-        tab-width 4
-        use-dialog-box nil
-        scroll-conservatively 1000
-        backup-inhibited t
-        auto-save-default nil
-        global-auto-revert-non-file-buffers t
-        x-select-enable-clipboard nil
-        user-full-name "Alexander Neville")
+	inhibit-startup-message t
+	initial-scratch-message "; Hello!"
+	tab-width 4
+	use-dialog-box nil
+	scroll-conservatively 1000
+	backup-inhibited t
+	auto-save-default nil
+	global-auto-revert-non-file-buffers t
+	x-select-enable-clipboard nil
+	user-full-name "Alexander Neville")
 #+end_src
 
 The default font is given an absolute height of =100=. The height of other fonts is specified relative to the height of the default font. In this case =:height 1.0= can be omitted.
 
 #+begin_src emacs-lisp
-  (set-face-attribute 'default nil :family "Iosevka Nerd Font" :height 100)
+  (set-face-attribute 'default nil :family "Jetbrains Mono Nerd Font" :height 100)
   (set-face-attribute 'variable-pitch nil :family "Noto Sans")
-  (set-face-attribute 'fixed-pitch nil :family "Iosevka Nerd Font")
+  (set-face-attribute 'fixed-pitch nil :family "Jetbrains Mono Nerd Font")
 #+end_src
 
 * Packages
@@ -82,7 +83,7 @@ There are thousands of packages available to extend emacs. =M-x list-packages<CR
 
 The /modus themes/ are very feature rich and roll a lot of initialisation into one package. The [[https://protesilaos.com/emacs/modus-themes][official documentation]] is the best place to find out about the configuration options available.
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
   (use-package modus-themes
     :config
     (setq modus-themes-mode-line '(accented)
@@ -107,31 +108,15 @@ The /modus themes/ are very feature rich and roll a lot of initialisation into o
             (fg-main "#d4d4d4")
             )
           )
-    (setq modus-themes-common-palette-overrides
-          '((border-mode-line-active bg-mode-line-active)
-            (border-mode-line-inactive bg-mode-line-inactive)))
-    (load-theme 'modus-vivendi t))
-
-  (defun my-modus-themes-custom-faces ()
-    (modus-themes-with-colors
-     (custom-set-faces
-      ;; Add "padding" to the mode lines
-      `(mode-line ((,c :underline ,border-mode-line-active
-                       :overline ,border-mode-line-active
-                       :box (:line-width 10 :color ,bg-mode-line-active))))
-      `(mode-line-inactive ((,c :underline ,border-mode-line-inactive
-                                :overline ,border-mode-line-inactive
-                                :box (:line-width 10 :color ,bg-mode-line-inactive)))))))
-
-  ;; ESSENTIAL to make the underline move to the bottom of the box:
-  (setq x-underline-at-descent-line t)
-
-  (add-hook 'modus-themes-after-load-theme-hook #'my-modus-themes-custom-faces)
+    ;; (setq modus-themes-common-palette-overrides
+    ;;       '((border-mode-line-active bg-mode-line-active)
+    ;;         (border-mode-line-inactive bg-mode-line-inactive)))
+    (load-theme 'modus-operandi t))
 #+end_src
 
 The set of /doom emacs/ themes is also quite nice. I only ever load one of /modus/ or /doom/.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package doom-themes
     :ensure t
     :config
@@ -308,6 +293,7 @@ Leader key configuration, similar to my Neovim configuration. /Which-key/ will s
     "otl" 'org-toggle-link-display
     "oti" 'org-toggle-inline-images
     "otb" 'org-toggle-blocks
+    "obt" 'org-toggle-blocks
     "oby" 'org-copy-src-block
     "obY" 'org-clipboard-copy-src-block
     ;; projectile
@@ -420,9 +406,12 @@ In the past I haven't used snippets too heavily, but I am gradually getting used
 #+begin_src emacs-lisp
   (use-package yasnippet
     :config
-                                          ; (setq yas-snippet-dirs '("~/.config/emacs/snippets"))
-                                          ; (add-hook 'prog-mode-hook #'yas-minor-mode)
-                                          ; (add-hook 'prog-mode-hook #'yas-minor-mode))
+					  ; (setq yas-snippet-dirs '("~/.config/emacs/snippets"))
+					  ; (add-hook 'prog-mode-hook #'yas-minor-mode)
+					  ; (add-hook 'prog-mode-hook #'yas-minor-mode))
+    (define-key yas-minor-mode-map (kbd "<tab>") nil)
+    (define-key yas-minor-mode-map (kbd "TAB") nil)
+    (define-key yas-minor-mode-map (kbd "C-c y") #'yas-expand)
     (yas-global-mode 1))
   (use-package yasnippet-snippets)
 #+end_src
@@ -437,10 +426,10 @@ Define a function to evaluate when org mode is loaded, this is easier than many 
 
 #+begin_src emacs-lisp
   (defun org-mode-setup ()
-    (org-indent-mode 1)
+    ;; (org-indent-mode nil)
     ;; (variable-pitch-mode 1)
     (visual-line-mode nil)
-    (setq org-hide-emphasis-markers t
+    (setq org-hide-emphasis-markers nil
           org-return-follows-link  t
           org-list-allow-alphabetical t
           org-catch-invisible-edits 'smart
@@ -467,7 +456,7 @@ Call the set-up function when org mode is loaded.
   (require 'org-indent)
   (require 'org-src)
   (setq
-   org-startup-folded 'nofold
+   org-startup-folded t
    org-startup-with-latex-preview nil ; slow
    org-startup-with-inline-images nil ; slow
    )
@@ -521,7 +510,7 @@ The /mixed-pitch/ package does many of the same things.
 
 Change the height of the face used to display /org-mode/ headings and the document title.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (defun org-heading-face-setup ()
     (dolist (face '((org-level-1 . 1.5)
                     (org-level-2 . 1.4)
@@ -539,7 +528,7 @@ Change the height of the face used to display /org-mode/ headings and the docume
   (add-hook 'org-mode-hook 'org-heading-face-setup)
 #+end_src
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (defun org-title-face-setup ()
     (set-face-attribute 'org-document-title nil :family (face-attribute 'default :family) :weight 'bold :height 1.6)
     )
@@ -583,14 +572,16 @@ Optionally use a package like /org-modern/ to style the buffer. I am not using i
 #+end_src
 
 Most of the time I choose to hide a few org syntax elements. The /org-bullets/ package replaces the asterisks before each heading with Unicode symbols. /org-appear/ shows emphasis markers when the cursor hovers over emphasised text.
-
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package org-bullets
     :after org
     :hook (org-mode . org-bullets-mode)
     :custom
     (org-bullets-bullet-list '("●" "○" "●" "○" "●" "○" "●")))
 
+#+end_src
+
+#+begin_src emacs-lisp
   (use-package org-appear
     :hook (org-mode . org-appear-mode)
     :config
@@ -617,9 +608,9 @@ A couple of packages to help with editing latex in org mode. Some snippets have 
     :config
     (setq cdlatex-simplify-sub-super-scripts nil)
     (add-hook 'org-mode-hook #'turn-on-org-cdlatex))
-  (use-package org-fragtog
-    :config
-    (add-hook 'org-mode-hook 'org-fragtog-mode))
+  (use-package org-fragtog)
+    ; :config
+    ; (add-hook 'org-mode-hook 'org-fragtog-mode))
 #+end_src
 
 ** Spell Checking
