@@ -1,7 +1,8 @@
-personal_ws-1.1 en 50 
+personal_ws-1.1 en 57 
 ADT
 Cgroups
 DevOps
+Flycheck
 Github
 Invariants
 JDK
@@ -14,8 +15,10 @@ Neovim
 OCI
 Podman
 Polymorphism
+Prepend
 QoL
 Redhat
+TODO
 TODOs
 UI
 VM
@@ -34,7 +37,9 @@ emacs
 init
 makefile
 mkdir
+modeline
 modularity
+modus
 namespace
 namespaces
 percept
@@ -45,7 +50,9 @@ runtimes
 src
 struct
 stylesheet
+swiper
 tmux
 unobservable
+unstage
 untracked
 zsh
