@@ -1,6 +1,6 @@
 #+TITLE: Emacs Configuration
 
-Emacs is a *highly* extensible /text-oriented user interface/, with capabilities that extend far beyond what most - if not all - other text editors offer.
+Emacs is a highly extensible /text-oriented user interface/, with capabilities extending far beyond what most other text editors offer.
 
 [[./emacs_screenshot.png]]
 
